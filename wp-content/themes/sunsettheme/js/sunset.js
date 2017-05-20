@@ -102,7 +102,6 @@ jQuery(document).ready( function($){
 
 				}
 
-
 			}
 
 		});
@@ -175,42 +174,63 @@ jQuery(document).ready( function($){
 
 	/*  contact form submission */
 	$('#sunsetContactForm').on('submit', function(e){
-		e.preventDefault();
 
-		 var form = $(this);
+        e.preventDefault();
 
-		 var name = form.find('#name').val(),
-		 		 email = form.find('#email').val(),
-		 	 	 message = form.find('#message').val(),
-				 ajaxurl = form.data('url');
+		$('.has-error').removeClass('has-error');
 
-		 	if (name === ''  ) {
-				$('#name').parent('.form-group').addClass('has-error')
-				return;
-		 	}
+        var form = $(this),
+             name = form.find('#name').val(),
+             email = form.find('#email').val(),
+             message = form.find('#message').val(),
+             ajaxurl = form.data('url');
 
-			$.ajax({
-				url : ajaxurl,
-				type : 'post',
-				data : {
-					name : name,
-					email : email,
-					message : message,
-					action: 'sunset_save_user_contact_form'
+        if (name === ''  ) {
+            $('#name').parent('.form-group').addClass('has-error')
+            return;
+        }
 
-				},
-				error : function( response ){
-					console.log( response );
-				},
-				success : function( response ){
-					if(response == 0){
-						console.log('Unable to save your message. Please try again later.');
-					} else {
-						console.log('Message saved, thank you.');
-					}
-				}
-			});
+        if (email === ''  ) {
+            $('#email').parent('.form-group').addClass('has-error')
+            return;
+        }
 
-		});
+        if (message === ''  ) {
+            $('#message').parent('.form-group').addClass('has-error')
+            return;
+        }
+
+        form.find('input, button, textarea').attr('disabled', 'disabled');
+        $('.js-form-submission').addClass('js-show-feedback');
+
+        $.ajax({
+            url : ajaxurl,
+            type : 'post',
+            data : {
+                name : name,
+                email : email,
+                message : message,
+                action: 'sunset_save_user_contact_form'
+
+            },
+            error : function( response ){
+                $('.js-form-submission').removeClass('js-show-feedback');
+                $('.js-form-error').addClass('js-show-feedback');
+                form.find('input, button, textarea').removeAttr('disabled');
+            },
+            success : function( response ){
+                if (response == 0) {
+                    $('.js-form-submission').removeClass('js-show-feedback');
+                    $('.js-form-error').addClass('js-show-feedback');
+                    form.find('input, button, textarea').removeAttr('disabled');
+                } else {
+                    $('.js-form-submission').removeClass('js-show-feedback');
+                    $('.js-form-success').addClass('js-show-feedback');
+                    form.find('input, button, textarea').removeAttr('disabled').val('');
+                }
+            }
+        });
+
+        });
 
 	});
